@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>OpenStreetMap Example</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/leaflet/leaflet.css"/>
+
+</head>
+<body>
+<div id="map" style="height: 400px;"></div>
+
+<script src="leaflet/leaflet.js"></script>
+<script>
+  var map = L.map('map').setView([51.505, -0.09], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+</script>
+<div>
+  <label for="width">Width:</label>
+  <input type="number" id="width" name="width" value="800">
+</div>
+<div>
+  <label for="height">Height:</label>
+  <input type="number" id="height" name="height" value="600">
+</div>
+<div>
+  <label for="minLat">Min Latitude:</label>
+  <input type="number" id="minLat" name="minLat" value="3367574.339965814">
+</div>
+<div>
+  <label for="minLon">Min Longitude:</label>
+  <input type="number" id="minLon" name="minLon" value="8384657.300555964">
+</div>
+<div>
+  <label for="maxLat">Max Latitude:</label>
+  <input type="number" id="maxLat" name="maxLat" value="3373996.4727091687">
+</div>
+<div>
+  <label for="maxLon">Max Longitude:</label>
+  <input type="number" id="maxLon" name="maxLon" value="8389390.222339034">
+</div>
+<div>
+  <button onclick="renderMap()">Render Map</button>
+
+</div>
+
+<!--<div id="map" style="height: 400px;"></div>-->
+
+<script src="/leaflet/leaflet.js"></script>
+<script>
+  function renderMap() {
+    var width = document.getElementById("width").value;
+    var height = document.getElementById("height").value;
+    var minLat = document.getElementById("minLat").value;
+    var minLon = document.getElementById("minLon").value;
+    var maxLat = document.getElementById("maxLat").value;
+    var maxLon = document.getElementById("maxLon").value;
+
+    // Perform a GET request to your Spring Boot REST endpoint
+    fetch(`/render?width=${encodeURIComponent(width)}&height=${encodeURIComponent(height)}&minLat=${encodeURIComponent(minLat)}&minLon=${encodeURIComponent(minLon)}&maxLat=${encodeURIComponent(maxLat)}&maxLon=${encodeURIComponent(maxLon)}`)
+            .then(response => response.json())
+    .then(data =>  {
+      // Здесь вы можете использовать данные, представленные объектом data
+      console.log(data);
+      updateMap(data);})
+
+            // .then(data => (data))
+            .catch(error => console.error('Error:', error));
+  }
+
+  function updateMap(data) {
+    console.log(data);
+    var mapUrl = data.mapUrl;
+    var centerLat = data.centerLat;
+    var centerLon = data.centerLon;
+    var zoomLevel = data.zoomLevel;
+
+    // Remove existing map if any
+    var existingMap = document.getElementById("map");
+    map.innerHTML = "";
+
+    // Create a new map with the received image
+    map.setView([centerLat, centerLon], zoomLevel);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    var width = document.getElementById("width").value;
+    var height = document.getElementById("height").value;
+    map.getContainer().style.width = width + "px";
+    map.getContainer().style.height = height + "px";
+
+  }
+
+</script>
+
+</body>
+</html>
